@@ -2,9 +2,7 @@ package InputOutput;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,15 +12,13 @@ import java.util.TreeMap;
 
 public class DataClass {
 
-	private static boolean writeToConsole = true;
 
-	private static String folderPath = "C:\\devl\\Java\\89919_ex2\\src\\";
 	private boolean skipLine = true;
 	private List<Set<Topics>> docsTopicList;
-	
+
 
 	private List<Map<String,Integer>> docsList;
-	
+
 	public DataClass(){
 		this.docsTopicList = new ArrayList<Set<Topics>>();
 		this.docsList = new ArrayList<Map<String,Integer>>();
@@ -30,30 +26,30 @@ public class DataClass {
 
 	public void readInputFile(String inputFile) throws IOException{
 
-		writeConsoleWhenTrue(folderPath+inputFile);
-		
-	    FileReader fileReader = new FileReader(folderPath+inputFile);
-	    BufferedReader bufferedReader = new BufferedReader(fileReader);
-	    
-	    String docTopicLine;
-	    
-	    while ((docTopicLine = bufferedReader.readLine()) != null) {
-	    	
-	    	docsTopicList.add(setTopicFromLine(docTopicLine));
+		Output.writeConsoleWhenTrue(Output.folderPath+inputFile);
 
-	    	skipEmptyLine(bufferedReader);
-	    	
-	    	String docTextLine = bufferedReader.readLine();
-	        docsList.add(mapWordCount(docTextLine));
-	        
-	    	skipEmptyLine(bufferedReader);
+		FileReader fileReader = new FileReader(Output.folderPath+inputFile);
+		BufferedReader bufferedReader = new BufferedReader(fileReader);
 
-	    }
-	    fileReader.close();
-	    
-//	    writeConsole(docsList);
+		String docTopicLine;
+
+		while ((docTopicLine = bufferedReader.readLine()) != null) {
+
+			docsTopicList.add(setTopicFromLine(docTopicLine));
+
+			skipEmptyLine(bufferedReader);
+
+			String docTextLine = bufferedReader.readLine();
+			docsList.add(mapWordCount(docTextLine));
+
+			skipEmptyLine(bufferedReader);
+
+		}
+		fileReader.close();
+
+		//	    writeConsole(docsList);
 	}
-	
+
 	private void skipEmptyLine(BufferedReader bufferedReader) {
 		try {
 			if(skipLine)
@@ -66,42 +62,122 @@ public class DataClass {
 
 	private Set<Topics> setTopicFromLine(String docTopicLine) {
 		// TODO Change in EX4
-		writeConsoleWhenTrue(docTopicLine);
+		Output.writeConsoleWhenTrue(docTopicLine);
 		return null;
-		
+
 	}
 
 	private Map<String, Integer> mapWordCount(String inputLine) {
-		
+
 		Map<String, Integer> wordsMap = new TreeMap<String, Integer>();
 		String[] words = inputLine.split(" ");
 		for(String word : words){
+			word = word.toLowerCase();
 			wordsMap.put(word, wordsMap.get(word) == null ? 1 : wordsMap.get(word)+1);
-			writeConsoleWhenTrue(word + "-" + wordsMap.get(word));
+			Output.writeConsoleWhenTrue(word + "-" + wordsMap.get(word));
 		}
 		return wordsMap;
 	}
 
-	public static void writeOutputFile(String outputFile, String outputLine) throws IOException{
 
-	    FileWriter fileWriter = new FileWriter(folderPath+outputFile,true);
-	    PrintWriter out1 = new PrintWriter(fileWriter);
-	    out1.write(outputLine);
-	    
-	    writeConsoleWhenTrue(outputLine);
-	    
-	    out1.flush();
-	    out1.close();
-	    fileWriter.close();
+
+	private Map<String, Integer> listMapToMapTotalWordCount(List<Map<String,Integer>> docsList) {
+		Map<String, Integer> wordsCountMap = new TreeMap<String, Integer>();
+		for(Map<String, Integer> docMap : docsList){
+			joinMaps(wordsCountMap,docMap);		
+		}
+		return wordsCountMap;
 	}
-	
-	public static void writeConsoleWhenTrue(Object Line){
-	
-		if(writeToConsole){
-			System.out.println(Line);
+
+	private void joinMaps(Map<String, Integer> srcMap, Map<String, Integer> otherMap){
+		for (String word : otherMap.keySet()){
+			joinMapValues(srcMap,otherMap,word);
 		}
 	}
-	
+
+	private void joinMapValues(Map<String, Integer> srcMap, Map<String, Integer> otherMap, String key){
+		srcMap.put(key, srcMap.get(key) == null ? otherMap.get(key) : srcMap.get(key)+otherMap.get(key));
+		Output.writeConsoleWhenTrue(key + "-" + srcMap.get(key));
+		if(key.equals("houston")){
+		}
+	}
+
+	public void splitXPrecentOfDocsWords(double d, Map<String, Integer> firstXPrecentWordsMap, Map<String, Integer> lastXPrecentWordsMap) {
+
+		if(d<0||d>1){
+			System.out.println("Precent should be between 0 to 1");
+			return;
+		}
+
+		long numberOfWordsInDocs = wordsTotalAmount(mapTotalDocsWordCount());	
+		long numFirstXPrecent = Math.round(d*numberOfWordsInDocs); //TODO: check if to use round or floor
+		Output.writeConsoleWhenTrue("Precent of the words is "+numFirstXPrecent);
+
+		long count=0;
+		int index=0;
+		boolean xPrecentPasted = false;
+		while(count<numFirstXPrecent && !xPrecentPasted){
+//			if(index>=1839){
+//				System.out.println("DEBUG");
+//			}
+			Map<String, Integer> currentDocMap = this.docsList.get(index++);
+			long numWordsInDoc = wordsTotalAmount(currentDocMap);
+			if(count+numWordsInDoc<=numFirstXPrecent){
+				joinMaps(firstXPrecentWordsMap,currentDocMap);	
+				count+=numWordsInDoc;
+			}
+			else{
+				for(String word : currentDocMap.keySet()){
+					if(xPrecentPasted || count==numFirstXPrecent){
+						joinMapValues(lastXPrecentWordsMap,currentDocMap,word);
+						xPrecentPasted = true;
+					}
+					else{
+						if(count+currentDocMap.get(word)<=numFirstXPrecent){
+							count+=currentDocMap.get(word);
+							joinMapValues(firstXPrecentWordsMap,currentDocMap,word);
+							
+						}
+						else{
+							//TODO: check no word appears more than Integer.MAX_VALUE number of times in all docs together
+							int numWordsFirstXPrecent = (int) (numFirstXPrecent-count);
+							int numWordsLastXPrecent = currentDocMap.get(word) - numWordsFirstXPrecent;
+
+							firstXPrecentWordsMap.put(word, firstXPrecentWordsMap.get(word) == null ? numWordsFirstXPrecent : firstXPrecentWordsMap.get(word)+numWordsFirstXPrecent);
+							Output.writeConsoleWhenTrue(word + "-" + firstXPrecentWordsMap.get(word));
+							count += numWordsFirstXPrecent;
+
+							xPrecentPasted = true;
+							lastXPrecentWordsMap.put(word, lastXPrecentWordsMap.get(word) == null ? numWordsLastXPrecent : lastXPrecentWordsMap.get(word) + numWordsLastXPrecent);
+							Output.writeConsoleWhenTrue(word + "-" + lastXPrecentWordsMap.get(word));
+
+						}
+					}
+				}
+			}
+		}
+		while(index<this.docsList.size()){
+			Map<String, Integer> currentDocMap = this.docsList.get(index++);
+			joinMaps(lastXPrecentWordsMap,currentDocMap);	
+		}
+	}
+
+	public Map<String, Integer> mapTotalDocsWordCount() {
+
+		return listMapToMapTotalWordCount(this.docsList);
+	}
+
+
+	public long wordsTotalAmount(Map<String, Integer> wordsCountMap){
+		int count=0;
+		for(int value :  wordsCountMap.values()){
+			count +=value;
+		}
+
+		return count;
+	}
+
+
 	public List<Set<Topics>> getDocsTopicList() {
 		return docsTopicList;
 	}
