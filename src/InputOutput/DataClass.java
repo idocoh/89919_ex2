@@ -16,7 +16,7 @@ public class DataClass {
 
 	private static boolean writeToConsole = true;
 
-	private String folderPath = "C:\\devl\\Java\\89919_ex2\\src\\";
+	private static String folderPath = "C:\\devl\\Java\\89919_ex2\\src\\";
 	private boolean skipLine = true;
 	private List<Set<Topics>> docsTopicList;
 	
@@ -82,12 +82,13 @@ public class DataClass {
 		return wordsMap;
 	}
 
-	public void writeOutputFile(String outputFile, String outputLine) throws IOException{
+	public static void writeOutputFile(String outputFile, String outputLine) throws IOException{
 
-	    FileWriter fileWriter = new FileWriter(folderPath+outputFile);
+	    FileWriter fileWriter = new FileWriter(folderPath+outputFile,true);
 	    PrintWriter out1 = new PrintWriter(fileWriter);
 	    out1.write(outputLine);
-	        System.out.println(outputLine);
+	    
+	    writeConsoleWhenTrue(outputLine);
 	    
 	    out1.flush();
 	    out1.close();
