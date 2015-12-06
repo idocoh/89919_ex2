@@ -127,6 +127,9 @@ public class DataClass {
 				count+=numWordsInDoc;
 			}
 			else{
+				// TODO: Fix this case
+				// Run over the doc in which we pass the X percent by the order of the words in the doc
+				// not by their ABC order (currentDocMap.keySet is ordered alphabetically)
 				for(String word : currentDocMap.keySet()){
 					if(xPrecentPasted || count==numFirstXPrecent){
 						joinMapValues(lastXPrecentWordsMap,currentDocMap,word);
@@ -168,9 +171,12 @@ public class DataClass {
 	}
 
 
-	public long wordsTotalAmount(Map<String, Integer> wordsCountMap){
+	public static long wordsTotalAmount(Map<String, Integer> wordsCountMap)
+	{
 		int count=0;
-		for(int value :  wordsCountMap.values()){
+	
+		for(int value :  wordsCountMap.values())
+		{
 			count +=value;
 		}
 
