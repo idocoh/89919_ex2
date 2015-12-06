@@ -15,10 +15,12 @@ public class DataClass {
 
 	private boolean skipLine = true;
 	private List<Set<Topics>> docsTopicList;
-
-
 	private List<Map<String,Integer>> docsMapList;
 	private List<String> docsStringList;
+	
+	private Map<String,Integer> mapTotalDocsWords;
+	private long totalWordsInDocs;
+	
 
 	public DataClass(){
 		this.docsTopicList = new ArrayList<Set<Topics>>();
@@ -50,6 +52,8 @@ public class DataClass {
 		}
 		fileReader.close();
 
+		mapTotalDocsWordCount();
+		totalWordsInDocs = wordsTotalAmount(mapTotalDocsWords);
 		//	    writeConsole(docsList);
 	}
 
@@ -100,8 +104,6 @@ public class DataClass {
 	private void joinMapValues(Map<String, Integer> srcMap, Map<String, Integer> otherMap, String key){
 		srcMap.put(key, srcMap.get(key) == null ? otherMap.get(key) : srcMap.get(key)+otherMap.get(key));
 		Output.writeConsoleWhenTrue(key + "-" + srcMap.get(key));
-		if(key.equals("houston")){
-		}
 	}
 
 	public void splitXPrecentOfDocsWords(double d, Map<String, Integer> firstXPrecentWordsMap, Map<String, Integer> lastXPrecentWordsMap) {
@@ -111,17 +113,13 @@ public class DataClass {
 			return;
 		}
 
-		long numberOfWordsInDocs = wordsTotalAmount(mapTotalDocsWordCount());	
-		long numFirstXPrecent = Math.round(d*numberOfWordsInDocs); //TODO: check if to use round or floor
+		long numFirstXPrecent = Math.round(d*totalWordsInDocs); //TODO: check if to use round or floor
 		Output.writeConsoleWhenTrue("Precent of the words is "+numFirstXPrecent);
 
 		long count=0;
 		int index=0;
 		boolean xPrecentPasted = false;
 		while(count<numFirstXPrecent && !xPrecentPasted){
-			//			if(index>=1839){
-			//				System.out.println("DEBUG");
-			//			}
 			Map<String, Integer> currentDocMap = this.docsMapList.get(index);
 			long numWordsInDoc = wordsTotalAmount(currentDocMap);
 			if(count+numWordsInDoc<=numFirstXPrecent){
@@ -158,12 +156,12 @@ public class DataClass {
 		}
 	}
 
-	public Map<String, Integer> mapTotalDocsWordCount() {
+	private void mapTotalDocsWordCount() {
 
-		return listMapToMapTotalWordCount(this.docsMapList);
+		mapTotalDocsWords = listMapToMapTotalWordCount(this.docsMapList);
 	}
-
-
+	
+	
 	public static long wordsTotalAmount(Map<String, Integer> wordsCountMap)
 	{
 		int count=0;
@@ -176,7 +174,14 @@ public class DataClass {
 		return count;
 	}
 
-
+	public Map<String, Integer> getMapTotalDocsWords() {
+		return mapTotalDocsWords;
+	}
+	
+	public long getTotalWordsInDocs() {
+		return totalWordsInDocs;
+	}
+	
 	public List<Set<Topics>> getDocsTopicList() {
 		return docsTopicList;
 	}

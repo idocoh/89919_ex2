@@ -14,7 +14,7 @@ public class Output {
 
 	public int countOutput = 1;
 	public String outputFile;
-	public int vocabulary_size = 300000; //TODO: check if this is what they ment
+	public static int vocabulary_size = 300000; //TODO: check if this is what they ment
 	
 	public Output(String outputFile){
 		this.outputFile = folderPath + outputFile;
