@@ -20,14 +20,15 @@ public class HeldOutModel
 			return (double)(pairTrNr.get(0))/(pairTrNr.get(1)*eventsInHeldOut); 
 		}
 		else{
-			//TODO: Find what to do here, i couldn't find it in my notes from class. its something like this, but need to choose big R some how...?
-			long N0 = Output.vocabulary_size - mapTotalDocsWordCount.keySet().size();
-			double addP = 0;
-			for( String word : trainMap.keySet()){
-				addP += mapTotalDocsWordCount.get(word)*HeldOutModel.CalcPHeldOut(trainMap, heldOutMap, word,null);
-			}
-			
-			return (double)(1-addP)/N0;
+			return 0;
+//			//TODO: Find what to do here, i couldn't find it in my notes from class. its something like this, but need to choose big R some how...?
+//			long N0 = Output.vocabulary_size - mapTotalDocsWordCount.keySet().size();
+//			double addP = 0;
+//			for( String word : trainMap.keySet()){
+//				addP += mapTotalDocsWordCount.get(word)*HeldOutModel.CalcPHeldOut(trainMap, heldOutMap, word,null);
+//			}
+//			
+//			return (double)(1-addP)/N0;
 		}
 	}
 
