@@ -17,11 +17,13 @@ public class DataClass {
 	private List<Set<Topics>> docsTopicList;
 
 
-	private List<Map<String,Integer>> docsList;
+	private List<Map<String,Integer>> docsMapList;
+	private List<String> docsStringList;
 
 	public DataClass(){
 		this.docsTopicList = new ArrayList<Set<Topics>>();
-		this.docsList = new ArrayList<Map<String,Integer>>();
+		this.docsMapList = new ArrayList<Map<String,Integer>>();
+		this.docsStringList = new ArrayList<String>();
 	}
 
 	public void readInputFile(String inputFile) throws IOException{
@@ -40,7 +42,8 @@ public class DataClass {
 			skipEmptyLine(bufferedReader);
 
 			String docTextLine = bufferedReader.readLine();
-			docsList.add(mapWordCount(docTextLine));
+			docsMapList.add(mapWordCount(docTextLine));
+			docsStringList.add(docTextLine);
 
 			skipEmptyLine(bufferedReader);
 
@@ -55,7 +58,6 @@ public class DataClass {
 			if(skipLine)
 				bufferedReader.readLine();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
 	}
@@ -117,64 +119,55 @@ public class DataClass {
 		int index=0;
 		boolean xPrecentPasted = false;
 		while(count<numFirstXPrecent && !xPrecentPasted){
-//			if(index>=1839){
-//				System.out.println("DEBUG");
-//			}
-			Map<String, Integer> currentDocMap = this.docsList.get(index++);
+			//			if(index>=1839){
+			//				System.out.println("DEBUG");
+			//			}
+			Map<String, Integer> currentDocMap = this.docsMapList.get(index);
 			long numWordsInDoc = wordsTotalAmount(currentDocMap);
 			if(count+numWordsInDoc<=numFirstXPrecent){
 				joinMaps(firstXPrecentWordsMap,currentDocMap);	
 				count+=numWordsInDoc;
 			}
 			else{
-				// TODO: Fix this case
-				// Run over the doc in which we pass the X percent by the order of the words in the doc
-				// not by their ABC order (currentDocMap.keySet is ordered alphabetically)
-				for(String word : currentDocMap.keySet()){
-					if(xPrecentPasted || count==numFirstXPrecent){
-						joinMapValues(lastXPrecentWordsMap,currentDocMap,word);
-						xPrecentPasted = true;
+				// If splitting the doc is needed, run over the doc in which we pass the X percent by the order of the words in the doc
+				// and not by their ABC order (currentDocMap.keySet is ordered alphabetically)
+				String currentDocString = this.docsStringList.get(index);
+				String[] words = currentDocString.split(" ");
+				for(String word : words){
+					word = word.toLowerCase();
+					if(!xPrecentPasted && count<numFirstXPrecent){
+						firstXPrecentWordsMap.put(word, firstXPrecentWordsMap.get(word) == null ? 1 : firstXPrecentWordsMap.get(word)+1);
+						Output.writeConsoleWhenTrue(word + "-" + firstXPrecentWordsMap.get(word));
+						count++;
 					}
 					else{
-						if(count+currentDocMap.get(word)<=numFirstXPrecent){
-							count+=currentDocMap.get(word);
-							joinMapValues(firstXPrecentWordsMap,currentDocMap,word);
-							
-						}
-						else{
-							//TODO: check no word appears more than Integer.MAX_VALUE number of times in all docs together
-							int numWordsFirstXPrecent = (int) (numFirstXPrecent-count);
-							int numWordsLastXPrecent = currentDocMap.get(word) - numWordsFirstXPrecent;
-
-							firstXPrecentWordsMap.put(word, firstXPrecentWordsMap.get(word) == null ? numWordsFirstXPrecent : firstXPrecentWordsMap.get(word)+numWordsFirstXPrecent);
-							Output.writeConsoleWhenTrue(word + "-" + firstXPrecentWordsMap.get(word));
-							count += numWordsFirstXPrecent;
-
-							xPrecentPasted = true;
-							lastXPrecentWordsMap.put(word, lastXPrecentWordsMap.get(word) == null ? numWordsLastXPrecent : lastXPrecentWordsMap.get(word) + numWordsLastXPrecent);
-							Output.writeConsoleWhenTrue(word + "-" + lastXPrecentWordsMap.get(word));
-
-						}
+						xPrecentPasted = true;
+						lastXPrecentWordsMap.put(word, lastXPrecentWordsMap.get(word) == null ? 1 : lastXPrecentWordsMap.get(word)+1);
+						Output.writeConsoleWhenTrue("AfterXPrecent: " + word + "-" + lastXPrecentWordsMap.get(word));
 					}
 				}
 			}
+
+			index++;
 		}
-		while(index<this.docsList.size()){
-			Map<String, Integer> currentDocMap = this.docsList.get(index++);
+		
+		//After X precent
+		while(index<this.docsMapList.size()){
+			Map<String, Integer> currentDocMap = this.docsMapList.get(index++);
 			joinMaps(lastXPrecentWordsMap,currentDocMap);	
 		}
 	}
 
 	public Map<String, Integer> mapTotalDocsWordCount() {
 
-		return listMapToMapTotalWordCount(this.docsList);
+		return listMapToMapTotalWordCount(this.docsMapList);
 	}
 
 
 	public static long wordsTotalAmount(Map<String, Integer> wordsCountMap)
 	{
 		int count=0;
-	
+
 		for(int value :  wordsCountMap.values())
 		{
 			count +=value;
@@ -189,11 +182,11 @@ public class DataClass {
 	}
 
 	public List<Map<String, Integer>> getDocsList() {
-		return docsList;
+		return docsMapList;
 	}
 
 	public void setDocsList(List<Map<String, Integer>> docsList) {
-		this.docsList = docsList;
+		this.docsMapList = docsList;
 	}
 
 	public void setDocsTopicList(List<Set<Topics>> docsTopicList) {
