@@ -114,7 +114,7 @@ public class DataClass {
 			return;
 		}
 
-		long numFirstXPrecent = Math.round(d*totalWordsInDocs); //TODO: check if to use round or floor
+		long numFirstXPrecent = Math.round(d*totalWordsInDocs);
 		Output.writeConsoleWhenTrue("Precent of the words is "+numFirstXPrecent);
 
 		long count=0;

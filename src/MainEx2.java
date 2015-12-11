@@ -67,13 +67,13 @@ public class MainEx2 {
 			outputClass.writeOutput(LidstoneModel.CalcPLidstone(lambda, lidstoneTrainMap, unseenWord));
 			
 			// Output 16
-			outputClass.writeOutput(calculatePerplexity(0.01, lidstoneTrainMap, validationMap));
+			outputClass.writeOutput(calculatePerplexityByLidstone(0.01, lidstoneTrainMap, validationMap));
 			
 			// Output 17
-			outputClass.writeOutput(calculatePerplexity(0.10, lidstoneTrainMap, validationMap));
+			outputClass.writeOutput(calculatePerplexityByLidstone(0.10, lidstoneTrainMap, validationMap));
 			
 			// Output 18
-			outputClass.writeOutput(calculatePerplexity(1.00, lidstoneTrainMap, validationMap));
+			outputClass.writeOutput(calculatePerplexityByLidstone(1.00, lidstoneTrainMap, validationMap));
 			
 			double bestLambda = getBestLambda(lidstoneTrainMap, validationMap);
 			
@@ -81,7 +81,7 @@ public class MainEx2 {
 			outputClass.writeOutput(bestLambda);
 			
 			// Output 20
-			outputClass.writeOutput(calculatePerplexity(bestLambda, lidstoneTrainMap, validationMap));
+			outputClass.writeOutput(calculatePerplexityByLidstone(bestLambda, lidstoneTrainMap, validationMap));
 
 			Map<String, Integer> heldOutTrainMap = new TreeMap<String, Integer>();
 			Map<String, Integer> heldOutMap  = new TreeMap<String, Integer>();
@@ -103,10 +103,26 @@ public class MainEx2 {
 			LidstoneModel.modelSanityCheck(lambda, lidstoneTrainMap);
 			HeldOutModel.modelSanityCheck(heldOutTrainMap, heldOutMap);
 			
-//			DataClass testData = new DataClass();
-//			testData.readInputFile(test_inputFile);
+			DataClass testData = new DataClass();
+			testData.readInputFile(test_inputFile);
 			
-		} catch (IOException e) 
+			// Output 25
+			outputClass.writeOutput(testData.getTotalWordsInDocs());
+			
+			double lidstonePerplexity = calculatePerplexityByLidstone(bestLambda, lidstoneTrainMap, testData.getMapTotalDocsWords());
+	
+			// Output 26
+			outputClass.writeOutput(lidstonePerplexity);
+	
+			double heldOutPerplexity = calculatePerplexityByHeldOut(heldOutTrainMap, heldOutMap, testData.getMapTotalDocsWords());
+			
+			// output 27
+			outputClass.writeOutput(heldOutPerplexity);
+			
+			// output 28 
+			outputClass.writeOutput(lidstonePerplexity <= heldOutPerplexity ? "L" : "H"); 
+		} 
+	    catch (IOException e) 
 	    {
 			e.printStackTrace();
 		}			
@@ -125,7 +141,7 @@ public class MainEx2 {
 		return map.get(word) == null ? 0 : map.get(word);
 	}
 	
-	private static double calculatePerplexity(double lambda, Map<String, Integer> trainingMap, Map<String, Integer> validationMap) 
+	private static double calculatePerplexityByLidstone(double lambda, Map<String, Integer> trainingMap, Map<String, Integer> validationMap) 
 	{		
 		double sumPWords = 0;
 		
@@ -133,6 +149,7 @@ public class MainEx2 {
 		
 		for (String word : validationMap.keySet())
 		{
+			//TODO: is this should be on the training map or the validation map?
 			double pWord = LidstoneModel.CalcPLidstone(lambda, trainingMap, trainingSize, word);
 			sumPWords += Math.log(pWord);
 		}
@@ -144,16 +161,33 @@ public class MainEx2 {
 		return perplexity;
 	}
 
+	private static double calculatePerplexityByHeldOut(Map<String, Integer> heldOutTrainMap, Map<String, Integer> heldOutMap, Map<String, Integer> validationMap)
+	{
+		double sumPWords = 0;
+		
+		for (String word : validationMap.keySet())
+		{
+			double pWord = HeldOutModel.CalcPHeldOut(heldOutTrainMap, heldOutMap, word);
+			sumPWords += Math.log(pWord);
+		}
+		
+		long validationWordsSize = validationMap.keySet().size();
+		
+		// TODO: DoubleCheck this, look at wiki
+		double perplexity = Math.exp(-1.0/validationWordsSize * sumPWords); 
+		return perplexity;
+	}
+	
 	private static double getBestLambda(Map<String, Integer> trainingMap, Map<String, Integer> validationMap)
 	{
 		double bestLambda = 0.0;
-		double bestPerplexityValue = calculatePerplexity(0, trainingMap, validationMap);
+		double bestPerplexityValue = calculatePerplexityByLidstone(0, trainingMap, validationMap);
 		
 		double perplexity;
 		
 		for (double lambda = 0.01; lambda <= 2; lambda += 0.01)
 		{
-			perplexity = calculatePerplexity(lambda, trainingMap, validationMap);
+			perplexity = calculatePerplexityByLidstone(lambda, trainingMap, validationMap);
 			
 			if (perplexity < bestPerplexityValue)
 			{
