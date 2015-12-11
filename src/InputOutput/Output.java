@@ -14,7 +14,7 @@ public class Output {
 
 	public int countOutput = 1;
 	public String outputFile;
-	public static int vocabulary_size = 300000; //TODO: check if this is what they ment
+	public static int vocabulary_size = 300000;
 	
 	public Output(String outputFile){
 		this.outputFile = folderPath + outputFile;
@@ -22,7 +22,7 @@ public class Output {
 	
 	public void writeNames(){
 		//TODO: change guys id!!!
-		writeOutputFile("#Students\tIdo Cohen\tGuy Cohen\t203516992\t123456789",false);
+		writeOutputFile("#Students\tIdo Cohen\tGuy Cohen\t203516992\t304840283",false);
 	}
 	
 	public void writeOutput(String output){
