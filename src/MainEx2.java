@@ -19,14 +19,14 @@ public class MainEx2 {
 	    String outputFile = args[3];
 	    
 	    Output outputClass = new Output(outputFile);
-		outputClass.writeNames();
+		
+	    outputClass.writeNames();
 		outputClass.writeOutput(devl_inputFile);
 		outputClass.writeOutput(test_inputFile);
 		outputClass.writeOutput(inputWord);
 		outputClass.writeOutput(outputFile);
-		outputClass.writeOutput(outputClass.vocabulary_size);
-		outputClass.writeOutput(1.0/outputClass.vocabulary_size);
-		
+		outputClass.writeOutput(Output.vocabulary_size);
+		outputClass.writeOutput(1.0/Output.vocabulary_size);
 	    
 	    try 
 	    {
@@ -67,22 +67,22 @@ public class MainEx2 {
 			outputClass.writeOutput(LidstoneModel.CalcPLidstone(lambda, trainMap, unseenWord));
 			
 			// Output 16
-			outputClass.writeOutput(calculatePerplexity(0.01, validationMap));
+			outputClass.writeOutput(calculatePerplexity(0.01, trainMap, validationMap));
 			
 			// Output 17
-			outputClass.writeOutput(calculatePerplexity(0.10, validationMap));
+			outputClass.writeOutput(calculatePerplexity(0.10, trainMap, validationMap));
 			
 			// Output 18
-			outputClass.writeOutput(calculatePerplexity(1.00, validationMap));
+			outputClass.writeOutput(calculatePerplexity(1.00, trainMap, validationMap));
 			
-			// Long func - after fixing it, use the mock while testing
-			double bestLambda = getBestLambda(validationMap);
+			double bestLambda = getBestLambda(trainMap, validationMap);
+			
+			// Output 19
 			outputClass.writeOutput(bestLambda);
-			outputClass.writeOutput(calculatePerplexity(bestLambda, validationMap));
-//			outputClass.writeOutput("Mock"); //TODO: delete
-//			outputClass.writeOutput("Mock"); //TODO: delete
-
 			
+			// Output 20
+			outputClass.writeOutput(calculatePerplexity(bestLambda, trainMap, validationMap));
+
 			Map<String, Integer> trainHalfMap = new TreeMap<String, Integer>();
 			Map<String, Integer> heldOutMap  = new TreeMap<String, Integer>();
 			devData.splitXPrecentOfDocsWords(0.5,trainHalfMap,heldOutMap);
@@ -150,30 +150,35 @@ public class MainEx2 {
 		return map.get(word) == null ? 0 : map.get(word);
 	}
 	
-	private static double calculatePerplexity(double lambda, Map<String, Integer> validationMap) 
+	private static double calculatePerplexity(double lambda, Map<String, Integer> trainingMap, Map<String, Integer> validationMap) 
 	{		
 		double sumPWords = 0;
+		
+		long trainingSize = DataClass.wordsTotalAmount(trainingMap);
+		
 		for (String word : validationMap.keySet())
 		{
-			double pWord = LidstoneModel.CalcPLidstone(lambda, validationMap, word);
+			double pWord = LidstoneModel.CalcPLidstone(lambda, trainingMap, trainingSize, word);
 			sumPWords += Math.log(pWord);
 		}
 		
-		long wordsInTrainingSet = DataClass.wordsTotalAmount(validationMap);
-		double perplexity = Math.exp(-1.0/wordsInTrainingSet * sumPWords); //Ido: shoud be pow(2,..) and not exp it think. and actually i think in my notes its a different formula - look at wiki also
+		long validationWordsSize = validationMap.keySet().size();
+		
+		// TODO: DoubleCheck this, look at wiki
+		double perplexity = Math.exp(-1.0/validationWordsSize * sumPWords); 
 		return perplexity;
 	}
 
-	private static double getBestLambda(Map<String, Integer> validationMap)
+	private static double getBestLambda(Map<String, Integer> trainingMap, Map<String, Integer> validationMap)
 	{
 		double bestLambda = 0.0;
-		double bestPerplexityValue = calculatePerplexity(0, validationMap);
+		double bestPerplexityValue = calculatePerplexity(0, trainingMap, validationMap);
 		
 		double perplexity;
 		
 		for (double lambda = 0.01; lambda <= 2; lambda += 0.01)
 		{
-			perplexity = calculatePerplexity(lambda, validationMap);
+			perplexity = calculatePerplexity(lambda, trainingMap, validationMap);
 			
 			if (perplexity < bestPerplexityValue)
 			{
