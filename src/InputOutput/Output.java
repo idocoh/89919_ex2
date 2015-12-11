@@ -21,7 +21,6 @@ public class Output {
 	}
 	
 	public void writeNames(){
-		//TODO: change guys id!!!
 		writeOutputFile("#Students\tIdo Cohen\tGuy Cohen\t203516992\t304840283",false);
 	}
 	
