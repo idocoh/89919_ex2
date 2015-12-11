@@ -130,7 +130,7 @@ public class MainEx2 {
 				double fH = DataClass.wordsTotalAmount(heldOutTrainMap) * HeldOutModel.CalcPHeldOut(heldOutTrainMap, heldOutMap, i);
 				long Nr = HeldOutModel.calcNr(heldOutTrainMap, i);
 				long tr = HeldOutModel.calcTr(heldOutTrainMap, heldOutMap, i);
-				outputClass.writeOutputFile("\n"+ i + "\t" + fr + "\t" + String.format("%.5f", fH) + "\t" + Nr + "\t" + tr + "\t");
+				outputClass.writeOutputFile("\n"+ i + "\t" + String.format("%.5f", fr) + "\t" + String.format("%.5f", fH) + "\t" + Nr + "\t" + tr + "\t");
 			}
 		} 
 	    catch (IOException e) 
