@@ -28,53 +28,59 @@ public class MainEx2 {
 		outputClass.writeOutput(1.0/outputClass.vocabulary_size);
 		
 	    
-	    try {
+	    try 
+	    {
 	    	DataClass devData = new DataClass();
 			devData.readInputFile(devl_inputFile);
-					
+			
+			// Output 7
 			outputClass.writeOutput(devData.getTotalWordsInDocs());
+			
 			Map<String, Integer> trainMap = new TreeMap<String, Integer>();
 			Map<String, Integer> validationMap  = new TreeMap<String, Integer>();
-			devData.splitXPrecentOfDocsWords(0.9,trainMap,validationMap);
+			devData.splitXPrecentOfDocsWords(0.9, trainMap, validationMap);
+			
+			// Output 8
 			outputClass.writeOutput(DataClass.wordsTotalAmount(validationMap));
 			
-			long numberOfEventsInTrainingSet = DataClass.wordsTotalAmount(trainMap);
-			outputClass.writeOutput(numberOfEventsInTrainingSet);
+			// Output 9
+			outputClass.writeOutput(DataClass.wordsTotalAmount(trainMap));
 			
+			// Output 10
 			outputClass.writeOutput(trainMap.keySet().size()); 
 			
-			int inputWordOccurencesOnTraining = trainMap.get(inputWord) == null ? 0 : trainMap.get(inputWord);
-			outputClass.writeOutput(inputWordOccurencesOnTraining);
+			// Output 11
+			outputClass.writeOutput(getNumberOfOccurences(trainMap, inputWord));
 
-			outputClass.writeOutput((double)inputWordOccurencesOnTraining/numberOfEventsInTrainingSet);
+			// Output 12
+			outputClass.writeOutput(calcPMle(trainMap, inputWord));
 			
-			
-			int unseenWordOccurencesInTraining = trainMap.get(unseenWord) == null ? 0 : trainMap.get(unseenWord);
-			outputClass.writeOutput((double)unseenWordOccurencesInTraining/numberOfEventsInTrainingSet);
+			// Output 13
+			outputClass.writeOutput(calcPMle(trainMap, unseenWord));
 
 			double lambda = 0.1;			
-			double pLidstoneInputWord = LidstoneModel.CalcPLidstone(lambda, trainMap, inputWord);
-			outputClass.writeOutput(pLidstoneInputWord);
+
+			// Output 14
+			outputClass.writeOutput(LidstoneModel.CalcPLidstone(lambda, trainMap, inputWord));
 			
-			double pLidstoneUnseenWord = LidstoneModel.CalcPLidstone(lambda, trainMap, unseenWord);
-			outputClass.writeOutput(pLidstoneUnseenWord);
+			// Output 15
+			outputClass.writeOutput(LidstoneModel.CalcPLidstone(lambda, trainMap, unseenWord));
 			
-			double perplexity = calculatePerplexity(0.01, validationMap);
-			outputClass.writeOutput(perplexity);
+			// Output 16
+			outputClass.writeOutput(calculatePerplexity(0.01, validationMap));
 			
-			perplexity = calculatePerplexity(0.10, validationMap);
-			outputClass.writeOutput(perplexity);
+			// Output 17
+			outputClass.writeOutput(calculatePerplexity(0.10, validationMap));
 			
-			perplexity = calculatePerplexity(1.00, validationMap);
-			outputClass.writeOutput(perplexity);
+			// Output 18
+			outputClass.writeOutput(calculatePerplexity(1.00, validationMap));
 			
-			//Long func - after fixing it, use the mock while testing
-			double bestLambda = GetBestLambda(validationMap);
+			// Long func - after fixing it, use the mock while testing
+			double bestLambda = getBestLambda(validationMap);
 			outputClass.writeOutput(bestLambda);
 			outputClass.writeOutput(calculatePerplexity(bestLambda, validationMap));
 //			outputClass.writeOutput("Mock"); //TODO: delete
 //			outputClass.writeOutput("Mock"); //TODO: delete
-
 
 			
 			Map<String, Integer> trainHalfMap = new TreeMap<String, Integer>();
@@ -131,6 +137,19 @@ public class MainEx2 {
 		
 	}
 
+	private static double calcPMle(Map<String, Integer> trainMap, String word)
+	{
+		int wordOccurences = getNumberOfOccurences(trainMap, word);
+		long eventsInTraining = DataClass.wordsTotalAmount(trainMap);
+		
+		return (double)wordOccurences/eventsInTraining;
+	}
+	
+	private static int getNumberOfOccurences(Map<String, Integer> map, String word)
+	{
+		return map.get(word) == null ? 0 : map.get(word);
+	}
+	
 	private static double calculatePerplexity(double lambda, Map<String, Integer> validationMap) 
 	{		
 		double sumPWords = 0;
@@ -145,7 +164,7 @@ public class MainEx2 {
 		return perplexity;
 	}
 
-	private static double GetBestLambda(Map<String, Integer> validationMap)
+	private static double getBestLambda(Map<String, Integer> validationMap)
 	{
 		double bestLambda = 0.0;
 		double bestPerplexityValue = calculatePerplexity(0, validationMap);
