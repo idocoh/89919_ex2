@@ -1,76 +1,108 @@
 package InputOutput;
 
-import java.io.Console;
 import java.util.*;
 
 public class HeldOutModel 
 {
-	//TODO: check if right
-
-	public static double CalcPHeldOut(Map<String, Integer> trainMap, Map<String, Integer> heldOutMap, String inputWord, Map<String, Integer> mapTotalDocsWordCount)
+	static String unseenWord = "unseen-word";
+	
+	public static double CalcPHeldOut(Map<String, Integer> trainMap, Map<String, Integer> heldOutMap, String inputWord)
 	{
-		int occurences = trainMap.get(inputWord) == null ? 0 : trainMap.get(inputWord);
-
-		if(occurences !=0 ){
-//			long Tr = CalcTrInHeldOut(trainMap,heldOutMap,occurences);
-//			long Nr = CalcNrInTrain(trainMap,occurences);
-			List<Long> pairTrNr = calc_TrInHeldOut_NrInTrain(trainMap,heldOutMap,occurences);
-			long eventsInHeldOut = DataClass.wordsTotalAmount(heldOutMap);
-
-			return (double)(pairTrNr.get(0))/(pairTrNr.get(1)*eventsInHeldOut); 
-		}
-		else{
-			return 0;
-//			//TODO: Find what to do here, i couldn't find it in my notes from class. its something like this, but need to choose big R some how...?
-//			long N0 = Output.vocabulary_size - mapTotalDocsWordCount.keySet().size();
-//			double addP = 0;
-//			for( String word : trainMap.keySet()){
-//				addP += mapTotalDocsWordCount.get(word)*HeldOutModel.CalcPHeldOut(trainMap, heldOutMap, word,null);
-//			}
-//			
-//			return (double)(1-addP)/N0;
-		}
+		int occurrences = trainMap.get(inputWord) == null ? 0 : trainMap.get(inputWord);
+		
+		return CalcPHeldOut(trainMap, heldOutMap, occurrences); 
 	}
+	
+	private static double CalcPHeldOut(Map<String, Integer> trainMap, Map<String, Integer> heldOutMap, int occurrences)
+	{
+		long Nr = calcNr(trainMap, occurrences);
+		
+		// in case no word appears occurrences times
+		if (Nr == 0)
+		{
+			return 0;
+		}
+		
+		long Tr = calcTr(trainMap, heldOutMap, occurrences);
+		long eventsInHeldOut = DataClass.wordsTotalAmount(heldOutMap);
 
-	private static List<Long> calc_TrInHeldOut_NrInTrain(Map<String, Integer> trainMap, Map<String, Integer> heldOutMap, Integer r){
-
-		long Tr = 0;
-		long Nr = 0;
-		for (String word : trainMap.keySet()){
-			if(trainMap.get(word).equals(r)){
-				Tr += (heldOutMap.get(word) == null? 0 : heldOutMap.get(word)); 
-				Nr += r; 
+		return (double)(Tr)/(Nr*eventsInHeldOut); 
+	}
+	
+	/*
+	 * Gets how many words appear r times in the training map
+	 */
+	private static long calcNr(Map<String, Integer> trainMap, int occurrences)
+	{
+		if (occurrences == 0)
+		{
+			// All words that don't appear in the training set
+			return Output.vocabulary_size - trainMap.keySet().size();
+		}
+		
+		long count = 0;
+		
+		for(int numOfOccurences : trainMap.values())
+		{
+			if (numOfOccurences == occurrences)
+			{
+				count++;
 			}
 		}
 		
-		List<Long> pair = new ArrayList<Long>();
-		pair.add(0, Tr);
-		pair.add(1, Nr);
-		return pair;
+		return count;
 	}
 	
-//	private static long CalcTrInHeldOut(Map<String, Integer> trainMap, Map<String, Integer> heldOutMap, Integer r){
-//
-//		long count = 0;
-//		for (String word : trainMap.keySet()){
-//			if(trainMap.get(word) == r){
-//				count += (heldOutMap.get(word) == null? 0 : heldOutMap.get(word)); 
-//			}
-//		}
-//
-//		return count;
-//	}
-//
-//	private static long CalcNrInTrain(Map<String, Integer> trainMap, Integer r){
-//
-//		long count = 0;
-//		for (String word : trainMap.keySet()){
-//			if(trainMap.get(word) == r){
-//				count += r; 
-//			}
-//		}
-//
-//		return count;
-//	}
+	private static long calcTr(Map<String, Integer> trainMap, Map<String, Integer> heldOutMap, int occurrences)
+	{
+		long Tr = 0;
 
+		if (occurrences != 0)
+		{
+			for (String word : trainMap.keySet())
+			{
+				if(trainMap.get(word).equals(occurrences))
+				{
+					Tr += (heldOutMap.get(word) == null? 0 : heldOutMap.get(word)); 
+				}
+			}
+		}
+		else
+		{
+			for (String word : heldOutMap.keySet())
+			{
+				// Only count occurrences of words that don't appear in training
+				if(trainMap.get(word) == null)
+				{
+					Tr += heldOutMap.get(word); 
+				}
+			}
+		}
+
+		return Tr;
+	}
+
+	public static void modelSanityCheck(Map<String, Integer> trainMap, Map<String, Integer> heldOutMap)
+	{
+		int maxOccurrences = Collections.max(trainMap.values());
+		
+		double p = 0;
+		double sum = 0;
+		for (int occurrences = 0; occurrences <= maxOccurrences; occurrences++)
+		{
+			p = CalcPHeldOut(trainMap, heldOutMap, occurrences);
+			sum += p * calcNr(trainMap, occurrences);
+		}
+		
+		// Prevent inaccuracies by java double calculations
+		double epsilon = 0.000000000000001;
+		if (Math.abs(1 - sum) < epsilon)
+		{
+			Output.writeConsoleWhenTrue("HeldOut is GOOD!");
+		}
+		else
+		{
+			Output.writeConsoleWhenTrue("HeldOut is BAD. Value: " + sum);
+		}
+	}
 }

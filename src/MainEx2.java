@@ -36,107 +36,82 @@ public class MainEx2 {
 			// Output 7
 			outputClass.writeOutput(devData.getTotalWordsInDocs());
 			
-			Map<String, Integer> trainMap = new TreeMap<String, Integer>();
+			Map<String, Integer> lidstoneTrainMap = new TreeMap<String, Integer>();
 			Map<String, Integer> validationMap  = new TreeMap<String, Integer>();
-			devData.splitXPrecentOfDocsWords(0.9, trainMap, validationMap);
+			devData.splitXPrecentOfDocsWords(0.9, lidstoneTrainMap, validationMap);
 			
 			// Output 8
 			outputClass.writeOutput(DataClass.wordsTotalAmount(validationMap));
 			
 			// Output 9
-			outputClass.writeOutput(DataClass.wordsTotalAmount(trainMap));
+			outputClass.writeOutput(DataClass.wordsTotalAmount(lidstoneTrainMap));
 			
 			// Output 10
-			outputClass.writeOutput(trainMap.keySet().size()); 
+			outputClass.writeOutput(lidstoneTrainMap.keySet().size()); 
 			
 			// Output 11
-			outputClass.writeOutput(getNumberOfOccurences(trainMap, inputWord));
+			outputClass.writeOutput(getNumberOfOccurences(lidstoneTrainMap, inputWord));
 
 			// Output 12
-			outputClass.writeOutput(calcPMle(trainMap, inputWord));
+			outputClass.writeOutput(calcPMle(lidstoneTrainMap, inputWord));
 			
 			// Output 13
-			outputClass.writeOutput(calcPMle(trainMap, unseenWord));
+			outputClass.writeOutput(calcPMle(lidstoneTrainMap, unseenWord));
 
 			double lambda = 0.1;			
 
 			// Output 14
-			outputClass.writeOutput(LidstoneModel.CalcPLidstone(lambda, trainMap, inputWord));
+			outputClass.writeOutput(LidstoneModel.CalcPLidstone(lambda, lidstoneTrainMap, inputWord));
 			
 			// Output 15
-			outputClass.writeOutput(LidstoneModel.CalcPLidstone(lambda, trainMap, unseenWord));
+			outputClass.writeOutput(LidstoneModel.CalcPLidstone(lambda, lidstoneTrainMap, unseenWord));
 			
 			// Output 16
-			outputClass.writeOutput(calculatePerplexity(0.01, trainMap, validationMap));
+			outputClass.writeOutput(calculatePerplexity(0.01, lidstoneTrainMap, validationMap));
 			
 			// Output 17
-			outputClass.writeOutput(calculatePerplexity(0.10, trainMap, validationMap));
+			outputClass.writeOutput(calculatePerplexity(0.10, lidstoneTrainMap, validationMap));
 			
 			// Output 18
-			outputClass.writeOutput(calculatePerplexity(1.00, trainMap, validationMap));
+			outputClass.writeOutput(calculatePerplexity(1.00, lidstoneTrainMap, validationMap));
 			
-			double bestLambda = getBestLambda(trainMap, validationMap);
+			double bestLambda = getBestLambda(lidstoneTrainMap, validationMap);
 			
 			// Output 19
 			outputClass.writeOutput(bestLambda);
 			
 			// Output 20
-			outputClass.writeOutput(calculatePerplexity(bestLambda, trainMap, validationMap));
+			outputClass.writeOutput(calculatePerplexity(bestLambda, lidstoneTrainMap, validationMap));
 
-			Map<String, Integer> trainHalfMap = new TreeMap<String, Integer>();
+			Map<String, Integer> heldOutTrainMap = new TreeMap<String, Integer>();
 			Map<String, Integer> heldOutMap  = new TreeMap<String, Integer>();
-			devData.splitXPrecentOfDocsWords(0.5,trainHalfMap,heldOutMap);
-			outputClass.writeOutput(DataClass.wordsTotalAmount(trainHalfMap));
+			devData.splitXPrecentOfDocsWords(0.5, heldOutTrainMap, heldOutMap);
+			
+			// Output 21
+			outputClass.writeOutput(DataClass.wordsTotalAmount(heldOutTrainMap));
+			
+			// Output 22
 			outputClass.writeOutput(DataClass.wordsTotalAmount(heldOutMap));
 			
-			double pHeldOutInputWord = HeldOutModel.CalcPHeldOut(trainHalfMap,heldOutMap,inputWord,devData.getMapTotalDocsWords());
-			outputClass.writeOutput(pHeldOutInputWord);
-			double pHeldOutUnseenWord = HeldOutModel.CalcPHeldOut(trainHalfMap,heldOutMap,unseenWord,devData.getMapTotalDocsWords());
-			outputClass.writeOutput(pHeldOutUnseenWord);
+			// Output 23
+			outputClass.writeOutput(HeldOutModel.CalcPHeldOut(heldOutTrainMap, heldOutMap, inputWord));
 			
-			//Long func - after fixing it, ignore it
+			// Output 24
+			outputClass.writeOutput(HeldOutModel.CalcPHeldOut(heldOutTrainMap, heldOutMap, unseenWord));
+			
 			lambda = 0.1;
-			checkCode(devData.getMapTotalDocsWords(),lambda,trainMap,inputWord,trainHalfMap,heldOutMap);
+			LidstoneModel.modelSanityCheck(lambda, lidstoneTrainMap);
+			HeldOutModel.modelSanityCheck(heldOutTrainMap, heldOutMap);
 			
 //			DataClass testData = new DataClass();
 //			testData.readInputFile(test_inputFile);
 			
-		} catch (IOException e) {
+		} catch (IOException e) 
+	    {
 			e.printStackTrace();
 		}			
-	}
-
-	private static void checkCode(Map<String, Integer> mapTotalDocsWordCount, double lambda, Map<String, Integer> trainMap, String inputWord, Map<String, Integer> trainHeldOutMap, Map<String, Integer> heldOutMap) {
-		long N0 = Output.vocabulary_size - mapTotalDocsWordCount.keySet().size();
-		
-		double addP = 0;
-		for( String word : mapTotalDocsWordCount.keySet()){
-			addP += LidstoneModel.CalcPLidstone(lambda, trainMap, word);
-		}
-		
-		double sumToOne = N0*LidstoneModel.CalcPLidstone(lambda, trainMap, unseenWord) + addP;
-		if( sumToOne == 1){
-			Output.writeConsoleWhenTrue("Lidstone is GOOD!");
-		}
-		else{
-			Output.writeConsoleWhenTrue("Lidstone is BAD. Value-" + sumToOne);
-		}
-		
-		addP = 0;
-		for( String word : mapTotalDocsWordCount.keySet()){
-			addP += HeldOutModel.CalcPHeldOut(trainHeldOutMap, heldOutMap, word,mapTotalDocsWordCount);
-		}
-		
-		sumToOne = N0*HeldOutModel.CalcPHeldOut(trainHeldOutMap, heldOutMap, unseenWord,mapTotalDocsWordCount) + addP;
-		if(sumToOne ==1){
-			Output.writeConsoleWhenTrue("HeldOut is GOOD!");
-		}
-		else{
-			Output.writeConsoleWhenTrue("HeldOut is BAD. Value-" + sumToOne);
-		}
-		
-	}
-
+	}	
+	
 	private static double calcPMle(Map<String, Integer> trainMap, String word)
 	{
 		int wordOccurences = getNumberOfOccurences(trainMap, word);
