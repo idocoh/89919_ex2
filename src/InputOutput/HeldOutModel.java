@@ -13,7 +13,7 @@ public class HeldOutModel
 		return CalcPHeldOut(trainMap, heldOutMap, occurrences); 
 	}
 	
-	private static double CalcPHeldOut(Map<String, Integer> trainMap, Map<String, Integer> heldOutMap, int occurrences)
+	public static double CalcPHeldOut(Map<String, Integer> trainMap, Map<String, Integer> heldOutMap, int occurrences)
 	{
 		long Nr = calcNr(trainMap, occurrences);
 		
@@ -32,7 +32,7 @@ public class HeldOutModel
 	/*
 	 * Gets how many words appear r times in the training map
 	 */
-	private static long calcNr(Map<String, Integer> trainMap, int occurrences)
+	public static long calcNr(Map<String, Integer> trainMap, int occurrences)
 	{
 		if (occurrences == 0)
 		{
@@ -53,7 +53,7 @@ public class HeldOutModel
 		return count;
 	}
 	
-	private static long calcTr(Map<String, Integer> trainMap, Map<String, Integer> heldOutMap, int occurrences)
+	public static long calcTr(Map<String, Integer> trainMap, Map<String, Integer> heldOutMap, int occurrences)
 	{
 		long Tr = 0;
 

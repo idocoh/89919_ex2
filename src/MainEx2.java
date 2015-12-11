@@ -121,6 +121,17 @@ public class MainEx2 {
 			
 			// output 28 
 			outputClass.writeOutput(lidstonePerplexity <= heldOutPerplexity ? "L" : "H"); 
+			
+			// Output 29
+			outputClass.writeOutput("");
+			for (int i = 0; i < 10; i++)
+			{
+				double fr = DataClass.wordsTotalAmount(lidstoneTrainMap) * LidstoneModel.CalcPLidstone(bestLambda, lidstoneTrainMap, i);
+				double fH = DataClass.wordsTotalAmount(heldOutTrainMap) * HeldOutModel.CalcPHeldOut(heldOutTrainMap, heldOutMap, i);
+				long Nr = HeldOutModel.calcNr(heldOutTrainMap, i);
+				long tr = HeldOutModel.calcTr(heldOutTrainMap, heldOutMap, i);
+				outputClass.writeOutputFile("\n"+ i + "\t" + fr + "\t" + String.format("%.5f", fH) + "\t" + Nr + "\t" + tr + "\t");
+			}
 		} 
 	    catch (IOException e) 
 	    {
