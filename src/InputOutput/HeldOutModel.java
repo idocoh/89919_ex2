@@ -1,5 +1,6 @@
 package InputOutput;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class HeldOutModel 
@@ -104,5 +105,24 @@ public class HeldOutModel
 		{
 			Output.writeConsoleWhenTrue("HeldOut is BAD. Value: " + sum);
 		}
+		
+//		//This gives a smaller error, but still not 
+//		double p = 0;
+//		BigDecimal sum = new BigDecimal(0);
+//		for (int occurrences = 0; occurrences <= maxOccurrences; occurrences++)
+//		{
+//			p = CalcPHeldOut(trainMap, heldOutMap, occurrences);
+//			sum = sum.add(BigDecimal.valueOf( p * calcNr(trainMap, occurrences)));
+//		}
+//		
+//
+//		if (sum.equals(1))
+//		{
+//			Output.writeConsoleWhenTrue("HeldOut is GOOD!");
+//		}
+//		else
+//		{
+//			Output.writeConsoleWhenTrue("HeldOut is BAD. Value: " + sum);
+//		}
 	}
 }

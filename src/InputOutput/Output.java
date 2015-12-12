@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 
 public class Output {
 	
-	public static boolean writeToConsole = true;
+	public static boolean writeToConsole = false;
 
 	//TODO: change folder path!!!
 	public static String folderPath = "C:\\devl\\Java\\89919_ex2\\src\\";

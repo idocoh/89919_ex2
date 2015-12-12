@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -20,6 +22,7 @@ public class MainEx2 {
 	    
 	    Output outputClass = new Output(outputFile);
 		
+	    //Output init
 	    outputClass.writeNames();
 		outputClass.writeOutput(devl_inputFile);
 		outputClass.writeOutput(test_inputFile);
@@ -126,7 +129,7 @@ public class MainEx2 {
 			outputClass.writeOutput("");
 			for (int i = 0; i < 10; i++)
 			{
-				double fr = DataClass.wordsTotalAmount(lidstoneTrainMap) * LidstoneModel.CalcPLidstone(bestLambda, lidstoneTrainMap, i);
+				double fr = DataClass.wordsTotalAmount(lidstoneTrainMap) * LidstoneModel.CalcPLidstone(bestLambda, lidstoneTrainMap, i); 
 				double fH = DataClass.wordsTotalAmount(heldOutTrainMap) * HeldOutModel.CalcPHeldOut(heldOutTrainMap, heldOutMap, i);
 				long Nr = HeldOutModel.calcNr(heldOutTrainMap, i);
 				long tr = HeldOutModel.calcTr(heldOutTrainMap, heldOutMap, i);
@@ -160,16 +163,20 @@ public class MainEx2 {
 		
 		for (String word : validationMap.keySet())
 		{
-			//TODO: is this should be on the training map or the validation map?
+			//TODO: is this should be on the training map or the validation map? IDO: should be training i think
 			double pWord = LidstoneModel.CalcPLidstone(lambda, trainingMap, trainingSize, word);
-			sumPWords += Math.log(pWord);
+//			sumPWords += Math.log(pWord);
+			sumPWords += validationMap.get(word) * Math.log(pWord)/Math.log(2);
+
 		}
 		
-		long validationWordsSize = validationMap.keySet().size();
+		long validationWordsSize = DataClass.wordsTotalAmount(validationMap); //.keySet().size();
 		
 		// TODO: DoubleCheck this, look at wiki
-		double perplexity = Math.exp(-1.0/validationWordsSize * sumPWords); 
+//		double perplexity = Math.exp(-1.0/validationWordsSize * sumPWords); 
+		double perplexity = Math.pow(2,(-1.0/validationWordsSize) * sumPWords); 
 		return perplexity;
+		
 	}
 
 	private static double calculatePerplexityByHeldOut(Map<String, Integer> heldOutTrainMap, Map<String, Integer> heldOutMap, Map<String, Integer> validationMap)
@@ -179,34 +186,55 @@ public class MainEx2 {
 		for (String word : validationMap.keySet())
 		{
 			double pWord = HeldOutModel.CalcPHeldOut(heldOutTrainMap, heldOutMap, word);
-			sumPWords += Math.log(pWord);
+//			sumPWords += Math.log(pWord);
+			sumPWords += validationMap.get(word) * Math.log(pWord)/Math.log(2);
 		}
 		
-		long validationWordsSize = validationMap.keySet().size();
+		long validationWordsSize = DataClass.wordsTotalAmount(validationMap); //.keySet().size();
 		
 		// TODO: DoubleCheck this, look at wiki
-		double perplexity = Math.exp(-1.0/validationWordsSize * sumPWords); 
+//		double perplexity = Math.exp(-1.0/validationWordsSize * sumPWords); 
+		double perplexity = Math.pow(2,(-1.0/validationWordsSize) * sumPWords); 
 		return perplexity;
 	}
 	
 	private static double getBestLambda(Map<String, Integer> trainingMap, Map<String, Integer> validationMap)
 	{
-		double bestLambda = 0.0;
+//		double bestLambda = 0.0;
+//		double bestPerplexityValue = calculatePerplexityByLidstone(0, trainingMap, validationMap);
+//		
+//		double perplexity;
+//		
+//		for (double lambda = 0.01; lambda <= 2; lambda += 0.01)
+//		{
+//			perplexity = calculatePerplexityByLidstone(lambda, trainingMap, validationMap);
+//			
+//			if (perplexity < bestPerplexityValue)
+//			{
+//				bestLambda = lambda;
+//				bestPerplexityValue = perplexity;
+//			}
+//		}
+//		
+//		return bestLambda;
+		
+		//Use Integer in order to use fixed-point double
+		int bestLambdaIndex = 0;
 		double bestPerplexityValue = calculatePerplexityByLidstone(0, trainingMap, validationMap);
 		
 		double perplexity;
 		
-		for (double lambda = 0.01; lambda <= 2; lambda += 0.01)
+		for (int lambdaIndex=1; lambdaIndex<=200; lambdaIndex++)
 		{
-			perplexity = calculatePerplexityByLidstone(lambda, trainingMap, validationMap);
+			perplexity = calculatePerplexityByLidstone(lambdaIndex/100.0, trainingMap, validationMap);
 			
 			if (perplexity < bestPerplexityValue)
 			{
-				bestLambda = lambda;
+				bestLambdaIndex = lambdaIndex;
 				bestPerplexityValue = perplexity;
 			}
 		}
 		
-		return bestLambda;
+		return bestLambdaIndex/100.0;
 	}
 }
