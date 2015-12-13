@@ -1,3 +1,4 @@
+/* Ido Cohen	Guy Cohen	203516992	304840283 */
 package InputOutput;
 
 import java.io.FileWriter;
@@ -9,8 +10,7 @@ public class Output {
 	
 	public static boolean writeToConsole = false;
 
-	//TODO: change folder path!!!
-	public static String folderPath = "C:\\devl\\Java\\89919_ex2\\src\\";
+	public static String folderPath = "";
 
 	public int countOutput = 1;
 	public String outputFile;
@@ -29,7 +29,6 @@ public class Output {
 	}
 	
 	public void writeOutput(Number output){
-		//TODO: check Number doesn't round the value
 		writeOutput(output.toString());
 	}
 	
@@ -51,7 +50,6 @@ public class Output {
 			out1.close();
 			fileWriter.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

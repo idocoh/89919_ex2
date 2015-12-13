@@ -1,10 +1,10 @@
+/* Ido Cohen	Guy Cohen	203516992	304840283 */
 package InputOutput;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +14,7 @@ import java.util.TreeMap;
 public class DataClass {
 
 	private boolean skipLine = true;
+	
 	private List<Set<Topics>> docsTopicList;
 	private List<Map<String,Integer>> docsMapList;
 	private List<String> docsStringList;
@@ -57,7 +58,6 @@ public class DataClass {
 
 		mapTotalDocsWordCount();
 		totalWordsInDocs = wordsTotalAmount(mapTotalDocsWords);
-		//	    writeConsole(docsList);
 	}
 
 	private void skipEmptyLine(BufferedReader bufferedReader) {

@@ -1,6 +1,5 @@
+/* Ido Cohen	Guy Cohen	203516992	304840283 */
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -9,7 +8,7 @@ import InputOutput.HeldOutModel;
 import InputOutput.LidstoneModel;
 import InputOutput.Output;
 
-public class MainEx2 {
+public class Ex2 {
 
 	static String unseenWord = "unseen-word";
 

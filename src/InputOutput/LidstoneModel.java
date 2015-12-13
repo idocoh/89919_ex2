@@ -1,3 +1,4 @@
+/* Ido Cohen	Guy Cohen	203516992	304840283 */
 package InputOutput;
 
 import java.util.*;
@@ -63,24 +64,5 @@ public class LidstoneModel
 			Output.writeConsoleWhenTrue("Lidstone is BAD. Value: " + sum);
 		}
 
-		//		//This gives a smaller error, but still not 1
-		//		BigDecimal sum = new BigDecimal(0);
-		//
-		//		sum = sum.add(BigDecimal.valueOf(N0 * CalcPLidstone(lambda, trainMap, trainingSize, unseenWord)));
-		//
-		//		for (String word : trainMap.keySet())
-		//		{
-		//			sum = sum.add(BigDecimal.valueOf(LidstoneModel.CalcPLidstone(lambda, trainMap, trainingSize, word)));
-		//		}
-		//
-		//		if (sum.equals(1))
-		//		{
-		//			Output.writeConsoleWhenTrue("Lidstone is GOOD!");
-		//		}
-		//		else
-		//		{
-		//			Output.writeConsoleWhenTrue("Lidstone is BAD. Value: " + sum);
-		//		}
-		//	}
 	}
 }
