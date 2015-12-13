@@ -13,14 +13,19 @@ public class LidstoneModel
 		return CalcPLidstone(lambda, trainMap, eventsInTraining, inputWord);
 	}
 
+	/*
+	 * Returns Lidstone smoothing, by the formula shown in class
+	 */
 	public static double CalcPLidstone(double lambda, Map<String, Integer> map, long mapSize, String inputWord)
 	{
 		int occurences = map.get(inputWord) == null ? 0 : map.get(inputWord);
 
-		// TODO: brings almost 1 in codeCheck (is 1.000000000000069 ok?)?
 		return (occurences + lambda)/(mapSize + lambda*Output.vocabulary_size); 
 	}
 
+	/*
+	 * Returns Lidstone smoothing, by the formula shown in class
+	 */
 	public static double CalcPLidstone(double lambda, Map<String, Integer> trainMap, int occurences)
 	{
 		long eventsInTraining = DataClass.wordsTotalAmount(trainMap);
@@ -28,6 +33,9 @@ public class LidstoneModel
 		return (occurences + lambda)/(eventsInTraining + lambda*Output.vocabulary_size); 
 	}
 
+	/*
+	 * Checks the sum of p words is 1
+	 */
 	public static void modelSanityCheck(double lambda, Map<String, Integer> trainMap)
 	{
 		long N0 = Output.vocabulary_size - trainMap.keySet().size();
@@ -35,15 +43,16 @@ public class LidstoneModel
 
 		double sum = 0;
 
+		// Contribution of all words that don't appear in the training set (unseen events)
 		sum += N0 * CalcPLidstone(lambda, trainMap, trainingSize, unseenWord);
 
+		// add contribution of each word
 		for (String word : trainMap.keySet())
 		{
 			sum += LidstoneModel.CalcPLidstone(lambda, trainMap, trainingSize, word);
 		}
 
 		// Prevent inaccuracies by java double calculations
-		// TODO: why 0.000000000000001 doesn't work in lidstone
 		double epsilon = 0.000000000000002;
 		if (Math.abs(1 - sum) < epsilon)
 		{

@@ -14,6 +14,9 @@ public class HeldOutModel
 		return CalcPHeldOut(trainMap, heldOutMap, occurrences); 
 	}
 	
+	/*
+	 * Returns P held out by the formula shown in calss
+	 */
 	public static double CalcPHeldOut(Map<String, Integer> trainMap, Map<String, Integer> heldOutMap, int occurrences)
 	{
 		long Nr = calcNr(trainMap, occurrences);
@@ -60,6 +63,8 @@ public class HeldOutModel
 
 		if (occurrences != 0)
 		{
+			// Gets the number of occurrences in held out map of the words that appear 
+			// Occurrences time in the training map
 			for (String word : trainMap.keySet())
 			{
 				if(trainMap.get(word).equals(occurrences))
@@ -70,6 +75,8 @@ public class HeldOutModel
 		}
 		else
 		{
+			// In case occurrences is 0, count the number of words that appear
+			// in the held out set but don't appear in the training set
 			for (String word : heldOutMap.keySet())
 			{
 				// Only count occurrences of words that don't appear in training
@@ -83,12 +90,17 @@ public class HeldOutModel
 		return Tr;
 	}
 
+	/*
+	 * Checks the sum of p words is 1
+	 */
 	public static void modelSanityCheck(Map<String, Integer> trainMap, Map<String, Integer> heldOutMap)
 	{
 		int maxOccurrences = Collections.max(trainMap.values());
 		
 		double p = 0;
 		double sum = 0;
+		
+		// sum from r=0 to r=MaxOccurrences
 		for (int occurrences = 0; occurrences <= maxOccurrences; occurrences++)
 		{
 			p = CalcPHeldOut(trainMap, heldOutMap, occurrences);
